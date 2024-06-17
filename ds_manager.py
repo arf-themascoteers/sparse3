@@ -95,24 +95,25 @@ if __name__ == "__main__":
         class_counts = Counter(split.train_y)
         sorted_class_counts = dict(sorted(class_counts.items()))
         for k,v in sorted_class_counts.items():
-            print(v, end="\t")
+            print(f"{v:>5}", end="")
         print("")
 
         class_counts = Counter(split.validation_y)
         sorted_class_counts = dict(sorted(class_counts.items()))
         for k,v in sorted_class_counts.items():
-            print(v, end="\t")
+            print(f"{v:>5}", end="")
         print("")
 
         class_counts = Counter(split.evaluation_train_y)
         sorted_class_counts = dict(sorted(class_counts.items()))
         for k,v in sorted_class_counts.items():
-            print(v, end="\t")
+            print(f"{v:>5}", end="")
         print("")
 
         class_counts = Counter(split.evaluation_test_y)
         sorted_class_counts = dict(sorted(class_counts.items()))
         for k,v in sorted_class_counts.items():
-            print(v, end="\t")
+            print(f"{v:>5}", end="")
+
         print("")
 
