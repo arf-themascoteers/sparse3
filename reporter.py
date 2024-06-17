@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 from metrics import Metrics
+import torch
 
 
 class Reporter:
@@ -135,11 +136,21 @@ class Reporter:
 
     @staticmethod
     def sanitize_metric(metric):
+        if torch.is_tensor(metric):
+            metric = metric.item()
         return round(max(metric, 0),3)
 
     @staticmethod
     def sanitize_weight(metric):
-        return round(max(metric, 0),5)
+        if torch.is_tensor(metric):
+            metric = metric.item()
+        return round(max(metric, 0),3)
+
+    @staticmethod
+    def sanitize_small(metric):
+        if torch.is_tensor(metric):
+            metric = metric.item()
+        return round(max(metric, 0),7)
 
     def create_epoch_report(self, tag, algorithm, dataset, target_size, fold):
         self.current_fold = fold
@@ -174,7 +185,9 @@ class Reporter:
             selected_weights = [str(Reporter.sanitize_weight(i.item())) for i in mean_weight[selected_bands]]
             selected_weights_str = '|'.join(selected_weights)
 
-            file.write(f"{epoch},{Reporter.sanitize_metric(mse_loss)},{l1_loss},{lambda_value},{l2_loss},{alpha},{Reporter.sanitize_metric(loss)},"
+            file.write(f"{epoch},{Reporter.sanitize_metric(mse_loss)},"
+                       f"{Reporter.sanitize_small(l1_loss)},{Reporter.sanitize_small(lambda_value)},"
+                       f"{Reporter.sanitize_small(l2_loss)},{Reporter.sanitize_small(alpha)},{Reporter.sanitize_metric(loss)},"
                        f"{Reporter.sanitize_metric(t_oa)},{Reporter.sanitize_metric(t_aa)},{Reporter.sanitize_metric(t_k)},"
                        f"{Reporter.sanitize_metric(v_oa)},{Reporter.sanitize_metric(v_aa)},{Reporter.sanitize_metric(v_k)},"                    
                        f"{Reporter.sanitize_metric(oa)},{Reporter.sanitize_metric(aa)},{Reporter.sanitize_metric(k)},"
