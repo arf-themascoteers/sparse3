@@ -1,3 +1,5 @@
+import torch
+
 from ds_manager import DSManager
 from reporter import Reporter
 import pandas as pd
@@ -15,7 +17,7 @@ class TaskRunner:
         self.tag = tag
         self.reporter = Reporter(self.tag, self.skip_all_bands)
         self.cache = pd.DataFrame(columns=["dataset","fold","algorithm",
-                                           "oa","aa","k","time","selected_features"])
+                                           "oa","aa","k","time","selected_features","selected_weights"])
 
     def evaluate(self):
         for dataset_name in self.task["datasets"]:
@@ -36,9 +38,11 @@ class TaskRunner:
         if metric is None:
             metric = self.get_results_for_a_case(algorithm, fold)
             self.reporter.write_details(algorithm, metric)
-            print(algorithm.weights[metric.selected_features])
-        else:
-            print(f"{algorithm.splits.get_name()} for size {algorithm.target_size} for fold {fold} for {algorithm.get_name()} was done")
+            if algorithm.weights is not None:
+                weights = torch.abs(algorithm.weights)
+                for i,w in enumerate(weights):
+                    print(i+1, round(w.item(),4))
+
 
     def get_results_for_a_case(self, algorithm:Algorithm, fold):
         metric = self.get_from_cache(algorithm, fold)
