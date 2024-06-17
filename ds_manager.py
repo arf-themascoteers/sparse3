@@ -42,9 +42,9 @@ class DSManager:
 
     def get_all_set_X_y_from_data(self, seed):
         data = self._shuffle(seed)
-        train_validation, evaluation = train_test_split(data, test_size=0.7, random_state=seed)
-        train, validation = train_test_split(train_validation, test_size=0.1, random_state=seed)
-        evaluation_train, evaluation_test = train_test_split(train_validation, test_size=0.2, random_state=seed)
+        train_validation, evaluation = train_test_split(data, test_size=0.5, random_state=seed, stratify=data[:,-1])
+        train, validation = train_test_split(train_validation, test_size=0.1, random_state=seed, stratify=train_validation[:,-1])
+        evaluation_train, evaluation_test = train_test_split(evaluation, test_size=0.2, random_state=seed, stratify=evaluation[:,-1])
         return DataSplits(self.name, *DSManager.get_X_y_from_data(train),
                           *DSManager.get_X_y_from_data(validation),
                           *DSManager.get_X_y_from_data(evaluation_train),
@@ -79,10 +79,40 @@ class DSManager:
 
 
 if __name__ == "__main__":
+    from collections import Counter
+    df = pd.read_csv("data/indian_pines.csv")
+    size = len(df)
+
     ds = DSManager("indian_pines")
     for split in ds.get_k_folds():
-        print(split.splits_description())
+        a = len(split.train_x)
+        b = len(split.validation_x)
+        c = len(split.evaluation_train_x)
+        d = len(split.evaluation_test_x)
+        tot = a + b + c + d
+        print(a,b,c,d,tot,size)
 
-    ds = DSManager("indian_pines",10)
-    for split in ds.get_k_folds():
-        print(split.splits_description())
+        class_counts = Counter(split.train_y)
+        sorted_class_counts = dict(sorted(class_counts.items()))
+        for k,v in sorted_class_counts.items():
+            print(v, end="\t")
+        print("")
+
+        class_counts = Counter(split.validation_y)
+        sorted_class_counts = dict(sorted(class_counts.items()))
+        for k,v in sorted_class_counts.items():
+            print(v, end="\t")
+        print("")
+
+        class_counts = Counter(split.evaluation_train_y)
+        sorted_class_counts = dict(sorted(class_counts.items()))
+        for k,v in sorted_class_counts.items():
+            print(v, end="\t")
+        print("")
+
+        class_counts = Counter(split.evaluation_test_y)
+        sorted_class_counts = dict(sorted(class_counts.items()))
+        for k,v in sorted_class_counts.items():
+            print(v, end="\t")
+        print("")
+

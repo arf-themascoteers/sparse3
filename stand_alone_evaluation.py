@@ -46,7 +46,13 @@ folds = 10
 bands1 = [10,16,24,27,40,47,53,59,63,78,83,92,100,106,119,120,129,140,145,153,154,166,176,182,190]
 bands2 = [165,38,51,65,12,100,0,71,5,60,88,26,164,75,74,52,22,94,35,11,184,179,34,160,46]
 
-compare(dataset, folds, bands1, bands2)
+#compare(dataset, folds, bands1, bands2)
+bands = list(range(200))
+oas, aas, ks = evaluate(dataset, folds, bands)
+
+print(sum(oas)/len(oas))
+print(sum(aas)/len(aas))
+print(sum(ks)/len(ks))
 
 
 
