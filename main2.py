@@ -2,9 +2,9 @@ from task_runner import TaskRunner
 import oak_plotter
 
 if __name__ == '__main__':
-    tag = "_"
+    tag = "x_"
     tasks = {
-        "algorithms" : ["zhang_mean_fc_nosig_bn"],
+        "algorithms" : ["zhang_mean_fc_nosig3"],
         "datasets" : ["indian_pines"],
         "target_sizes" : [5, 10, 15, 20, 25, 30]
     }

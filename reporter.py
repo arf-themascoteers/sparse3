@@ -8,8 +8,8 @@ class Reporter:
     def __init__(self, tag="results", skip_all_bands=False):
         self.tag = tag
         self.skip_all_bands = skip_all_bands
-        self.summary_filename = f"summary_{tag}.csv"
-        self.details_filename = f"details_{tag}.csv"
+        self.summary_filename = f"{tag}_summary.csv"
+        self.details_filename = f"{tag}_details.csv"
         self.summary_file = os.path.join("results", self.summary_filename)
         self.details_file = os.path.join("results", self.details_filename)
 
@@ -28,8 +28,8 @@ class Reporter:
                 file.write("dataset,target_size,algorithm,time,oa,aa,k,selected_features,fold\n")
 
         if not self.skip_all_bands:
-            self.all_features_details_filename = f"all_features_details_{self.summary_filename}"
-            self.all_features_summary_filename = f"all_features_summary_{self.summary_filename}"
+            self.all_features_details_filename = f"{tag}_all_features_details_summary.csv"
+            self.all_features_summary_filename = f"{tag}_all_features_summary_details.csv"
             self.all_features_summary_file = os.path.join("results", self.all_features_summary_filename)
             self.all_features_details_file = os.path.join("results", self.all_features_details_filename)
 
