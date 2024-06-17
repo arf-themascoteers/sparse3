@@ -11,11 +11,15 @@ import train_test_evaluator
 class Sparse(nn.Module):
     def __init__(self):
         super().__init__()
-        self.k = 0.0
 
-    def forward(self, X):
-        X = torch.where(torch.abs(X) < self.k, 0, X)
+    def forward(self, X, epoch):
+        X = torch.where(torch.abs(X) < self.k(epoch), 0, X)
         return X
+
+    def k(self, epoch):
+        if epoch < 25:
+            return 0
+        return 0.8 * (epoch - 25)/25
 
 
 class ZhangNet(nn.Module):
@@ -25,7 +29,7 @@ class ZhangNet(nn.Module):
         self.bands = bands
         self.number_of_classes = number_of_classes
         self.last_layer_input = last_layer_input
-        self.weighter = nn.Parameter(torch.ones(self.bands, dtype=torch.float32))
+        self.weighter = nn.Parameter(torch.randn(self.bands))
         self.classnet = nn.Sequential(
             nn.Linear(self.bands, 200),
             nn.LeakyReLU(),
@@ -35,9 +39,9 @@ class ZhangNet(nn.Module):
         num_params = sum(p.numel() for p in self.parameters() if p.requires_grad)
         print("Number of learnable parameters:", num_params)
 
-    def forward(self, X):
+    def forward(self, X, epoch):
         channel_weights = self.weighter
-        sparse_weights = channel_weights#self.sparse(channel_weights)
+        sparse_weights = self.sparse(channel_weights, epoch)
         reweight_out = X * sparse_weights
         output = self.classnet(reweight_out)
         return channel_weights, sparse_weights, output
@@ -70,7 +74,7 @@ class Algorithm_zhang_mean_fc_nosig16(Algorithm):
             self.epoch = epoch
             for batch_idx, (X, y) in enumerate(dataloader):
                 optimizer.zero_grad()
-                channel_weights, sparse_weights, y_hat = self.zhangnet(X)
+                channel_weights, sparse_weights, y_hat = self.zhangnet(X, epoch)
                 mean_weight, all_bands, selected_bands = self.get_indices(sparse_weights)
                 self.set_all_indices(all_bands)
                 self.set_selected_indices(selected_bands)
@@ -96,13 +100,13 @@ class Algorithm_zhang_mean_fc_nosig16(Algorithm):
         return self.zhangnet, self.selected_indices
 
     def report_stats(self, channel_weights, sparse_weights, epoch, mse_loss, l1_loss, lambda1, l2_loss, lambda2, loss):
-        _, _,y_hat = self.zhangnet(self.X_train)
+        _, _,y_hat = self.zhangnet(self.X_train, epoch)
         yp = torch.argmax(y_hat, dim=1)
         yt = self.y_train.cpu().detach().numpy()
         yh = yp.cpu().detach().numpy()
         t_oa, t_aa, t_k = train_test_evaluator.calculate_metrics(yt, yh)
 
-        _, _,y_hat = self.zhangnet(self.X_val)
+        _, _,y_hat = self.zhangnet(self.X_val, epoch)
         yp = torch.argmax(y_hat, dim=1)
         yt = self.y_val.cpu().detach().numpy()
         yh = yp.cpu().detach().numpy()
@@ -123,7 +127,6 @@ class Algorithm_zhang_mean_fc_nosig16(Algorithm):
         mean_weight, all_bands, selected_bands = self.get_indices(channel_weights)
 
         oa, aa, k = train_test_evaluator.evaluate_split(self.splits, self)
-        abs_mean_weights = torch.abs(means_sparse)
         self.reporter.report_epoch(epoch, mse_loss, l1_loss, lambda1, l2_loss,lambda2,loss,
                                    t_oa, t_aa, t_k,
                                    v_oa, v_aa, v_k,
@@ -131,7 +134,7 @@ class Algorithm_zhang_mean_fc_nosig16(Algorithm):
                                    min_cw, max_cw, avg_cw,
                                    min_s, max_s, avg_s,
                                    l0_cw, l0_s,
-                                   selected_bands, abs_mean_weights)
+                                   selected_bands, means_sparse)
 
     def get_indices(self, sparse_weights):
         band_indx = (torch.argsort(torch.abs(sparse_weights), descending=True)).tolist()

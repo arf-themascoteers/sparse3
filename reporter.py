@@ -144,13 +144,13 @@ class Reporter:
     def sanitize_weight(metric):
         if torch.is_tensor(metric):
             metric = metric.item()
-        return round(max(metric, 0),3)
+        return round(metric,3)
 
     @staticmethod
     def sanitize_small(metric):
         if torch.is_tensor(metric):
             metric = metric.item()
-        return round(max(metric, 0),7)
+        return round(metric,7)
 
     def create_epoch_report(self, tag, algorithm, dataset, target_size, fold):
         self.current_fold = fold
