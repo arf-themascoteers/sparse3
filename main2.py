@@ -4,7 +4,7 @@ import oak_plotter
 if __name__ == '__main__':
     tag = "fc"
     tasks = {
-        "algorithms" : ["zhang_mean_fc"],
+        "algorithms" : ["zhang_mean_fc_nosig"],
         "datasets" : ["indian_pines"],
         "target_sizes" : [5, 10, 15, 20, 25, 30]
     }

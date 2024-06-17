@@ -11,7 +11,7 @@ import train_test_evaluator
 class Sparse(nn.Module):
     def __init__(self):
         super().__init__()
-        self.k = 0.2
+        self.k = 0
 
     def forward(self, X):
         X = torch.where(X < self.k, 0, X)
@@ -29,10 +29,12 @@ class ZhangNet(nn.Module):
             nn.Linear(self.bands, 512),
             nn.ReLU(),
             nn.Linear(512, self.bands),
-            nn.Sigmoid()
+            nn.ReLU(),
         )
         self.classnet = nn.Sequential(
-            nn.Linear(self.bands, 100),
+            nn.Linear(self.bands, 200),
+            nn.LeakyReLU(),
+            nn.Linear(200, 100),
             nn.LeakyReLU(),
             nn.Linear(100, self.number_of_classes),
         )
@@ -49,7 +51,7 @@ class ZhangNet(nn.Module):
         return channel_weights, sparse_weights, output
 
 
-class Algorithm_zhang_mean_fc_k2(Algorithm):
+class Algorithm_zhang_mean_fc_nosig(Algorithm):
     def __init__(self, target_size:int, splits:DataSplits, tag, reporter, verbose, fold):
         super().__init__(target_size, splits, tag, reporter, verbose, fold)
         self.criterion = torch.nn.CrossEntropyLoss()
