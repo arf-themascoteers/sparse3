@@ -11,10 +11,12 @@ import train_test_evaluator
 class Sparse(nn.Module):
     def __init__(self):
         super().__init__()
-        self.k = 0.0
+        self.k = 0.4
+        self.d = 0.1
+        self.slope = self.d/self.k
 
     def forward(self, X):
-        X = torch.where(torch.abs(X) < self.k, 0, X)
+        X = torch.where(torch.abs(X) < self.k, torch.abs(X)*self.slope, X)
         return X
 
 
@@ -37,20 +39,20 @@ class ZhangNet(nn.Module):
 
     def forward(self, X):
         channel_weights = self.weighter
-        sparse_weights = channel_weights#self.sparse(channel_weights)
+        sparse_weights = self.sparse(channel_weights)
         reweight_out = X * sparse_weights
         output = self.classnet(reweight_out)
         return channel_weights, sparse_weights, output
 
 
-class Algorithm_zhang_mean_fc_nosig16(Algorithm):
+class Algorithm_zhang_mean_fc_nosig17(Algorithm):
     def __init__(self, target_size:int, splits:DataSplits, tag, reporter, verbose, fold):
         super().__init__(target_size, splits, tag, reporter, verbose, fold)
         self.criterion = torch.nn.CrossEntropyLoss()
         self.class_size = len(np.unique(self.splits.train_y))
         self.last_layer_input = 100
         self.zhangnet = ZhangNet(self.splits.train_x.shape[1], self.class_size, self.last_layer_input).to(self.device)
-        self.total_epoch = 500
+        self.total_epoch = 2000
         self.epoch = -1
         self.X_train = torch.tensor(self.splits.train_x, dtype=torch.float32).to(self.device)
         self.y_train = torch.tensor(self.splits.train_y, dtype=torch.int32).to(self.device)
