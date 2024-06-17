@@ -32,7 +32,9 @@ class ZhangNet(nn.Module):
             nn.Sigmoid()
         )
         self.classnet = nn.Sequential(
-            nn.Linear(self.bands, 100),
+            nn.Linear(self.bands, 200),
+            nn.LeakyReLU(),
+            nn.Linear(200, 100),
             nn.LeakyReLU(),
             nn.Linear(100, self.number_of_classes),
         )
