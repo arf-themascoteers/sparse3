@@ -14,8 +14,13 @@ DSS = {
 
 def plot_oak(source):
     os.makedirs("saved_figs", exist_ok=True)
-    dest = os.path.join("saved_figs",f"{source.split('.')[0]}.png")
-    df = pd.read_csv(os.path.join("results", source))
+    dest = os.path.join("saved_figs","out.png")
+    if isinstance(source,str):
+        df = pd.read_csv(source)
+    else:
+        df = [pd.read_csv(loc) for loc in source]
+        df = pd.concat(df, axis=0, ignore_index=True)
+
     df.to_csv(os.path.join("saved_figs","source.split.csv"), index=False)
     colors = ['#909c86', '#e389b9', '#269658', '#5c1ad6', '#f20a21', '#000000']
     markers = ['s', 'P', 'D', '^', 'o', '*', '.']
@@ -40,8 +45,6 @@ def plot_oak(source):
                 algorithm_label = algorithm
                 if algorithm in ALGS:
                     algorithm_label = ALGS[algorithm]
-                else:
-                    continue
                 alg_df = dataset_df[dataset_df["algorithm"] == algorithm]
                 alg_df = alg_df.sort_values(by='target_size')
                 axes[metric_index, ds_index].plot(alg_df['target_size'], alg_df[metric],
@@ -70,4 +73,4 @@ def plot_oak(source):
 
 
 if __name__ == "__main__":
-    plot_oak("summary_ten_.csv")
+    plot_oak(["saved/9/9_summary.csv","saved/ns8/7_summary.csv"])
