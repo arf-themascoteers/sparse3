@@ -54,7 +54,7 @@ class Reporter:
         metric.selected_features = sorted(metric.selected_features)
         with open(self.details_file, 'a') as file:
             file.write(f"{algorithm.splits.get_name()},{algorithm.target_size},{algorithm.get_name()},"
-                       f"{time},{oa},{aa},{k},{'$'.join([str(i) for i in metric.selected_features])},{self.current_fold}\n")
+                       f"{time},{oa},{aa},{k},{'|'.join([str(i) for i in metric.selected_features])},{self.current_fold}\n")
         self.update_summary(algorithm)
 
     def update_summary(self, algorithm):
@@ -135,7 +135,11 @@ class Reporter:
 
     @staticmethod
     def sanitize_metric(metric):
-        return max(metric, 0)
+        return round(max(metric, 0),3)
+
+    @staticmethod
+    def sanitize_weight(metric):
+        return round(max(metric, 0),5)
 
     def create_epoch_report(self, tag, algorithm, dataset, target_size, fold):
         self.current_fold = fold
@@ -163,19 +167,19 @@ class Reporter:
                            f"l0_cw,l0_s,"
                            f"selected_bands,selected_weights,{weight_labels}\n")
         with open(self.current_epoch_report_file, 'a') as file:
-            weights = [str(i.item()) for i in mean_weight]
+            weights = [str(Reporter.sanitize_weight(i.item())) for i in mean_weight]
             weights = ",".join(weights)
-            selected_bands_str = '$'.join([str(i) for i in selected_bands])
+            selected_bands_str = '|'.join([str(i) for i in selected_bands])
 
-            selected_weights = [str(i.item()) for i in mean_weight[selected_bands]]
-            selected_weights_str = '$'.join(selected_weights)
+            selected_weights = [str(Reporter.sanitize_weight(i.item())) for i in mean_weight[selected_bands]]
+            selected_weights_str = '|'.join(selected_weights)
 
-            file.write(f"{epoch},{mse_loss},{l1_loss},{lambda_value},{l2_loss},{alpha},{loss},"
-                       f"{t_oa},{t_aa},{t_k},"
-                       f"{v_oa},{v_aa},{v_k},"                    
-                       f"{oa},{aa},{k},"
-                       f"{min_cw},{max_cw},{avg_cw},"
-                       f"{min_s},{max_s},{avg_s},"
-                       f"{l0_cw},{l0_s},"
+            file.write(f"{epoch},{Reporter.sanitize_metric(mse_loss)},{l1_loss},{lambda_value},{l2_loss},{alpha},{Reporter.sanitize_metric(loss)},"
+                       f"{Reporter.sanitize_metric(t_oa)},{Reporter.sanitize_metric(t_aa)},{Reporter.sanitize_metric(t_k)},"
+                       f"{Reporter.sanitize_metric(v_oa)},{Reporter.sanitize_metric(v_aa)},{Reporter.sanitize_metric(v_k)},"                    
+                       f"{Reporter.sanitize_metric(oa)},{Reporter.sanitize_metric(aa)},{Reporter.sanitize_metric(k)},"
+                       f"{Reporter.sanitize_weight(min_cw)},{Reporter.sanitize_weight(max_cw)},{Reporter.sanitize_weight(avg_cw)},"
+                       f"{Reporter.sanitize_weight(min_s)},{Reporter.sanitize_weight(max_s)},{Reporter.sanitize_weight(avg_s)},"
+                       f"{int(l0_cw)},{int(l0_s)},"
                        f"{selected_bands_str},{selected_weights_str},{weights}\n")
 

@@ -148,15 +148,13 @@ class Algorithm_zhang(Algorithm):
 
     def get_indices(self, channel_weights):
         mean_weight = torch.mean(channel_weights, dim=0)
-        abs_mean_weight = torch.abs(mean_weight)
-        band_indx = (torch.argsort(abs_mean_weight, descending=True)).tolist()
+        band_indx = (torch.argsort(mean_weight, descending=True)).tolist()
         return mean_weight, band_indx, band_indx[: self.target_size]
 
     def l1_loss(self, channel_weights):
         channel_weights = torch.sum(channel_weights, dim=1)
         m = torch.mean(channel_weights)
         return m
-        #return torch.mean(torch.abs(channel_weights))
 
     def get_lambda(self, epoch):
         return 0.0001 * math.exp(-epoch/self.total_epoch)
