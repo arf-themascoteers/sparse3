@@ -15,6 +15,7 @@ class Algorithm(ABC):
         self.reporter = reporter
         self.verbose = verbose
         self.selected_indices = None
+        self.weights = None
         self.model = None
         self.all_indices = None
         self.reporter.create_epoch_report(tag, self.get_name(), self.splits.get_name(), self.target_size, fold)
@@ -67,3 +68,6 @@ class Algorithm(ABC):
         module = importlib.import_module(f"algorithms.algorithm_{name}")
         clazz = getattr(module, class_name)
         return clazz(target_size, splits, tag, reporter, verbose, fold)
+
+    def set_weights(self, mean_weight):
+        self.weights = mean_weight

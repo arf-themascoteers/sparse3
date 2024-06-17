@@ -36,6 +36,7 @@ class TaskRunner:
         if metric is None:
             metric = self.get_results_for_a_case(algorithm, fold)
             self.reporter.write_details(algorithm, metric)
+            print(algorithm.weights[metric.selected_features])
         else:
             print(f"{algorithm.splits.get_name()} for size {algorithm.target_size} for fold {fold} for {algorithm.get_name()} was done")
 

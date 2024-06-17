@@ -67,6 +67,7 @@ class Algorithm_zhang_mean_fc_nosig6(Algorithm):
                 mean_weight, all_bands, selected_bands = self.get_indices(sparse_weights)
                 self.set_all_indices(all_bands)
                 self.set_selected_indices(selected_bands)
+                self.set_weights(mean_weight)
 
                 y = y.type(torch.LongTensor).to(self.device)
                 mse_loss = self.criterion(y_hat, y)
@@ -80,7 +81,6 @@ class Algorithm_zhang_mean_fc_nosig6(Algorithm):
 
         print("Zhang - selected bands and weights:")
         print("".join([str(i).ljust(10) for i in self.selected_indices]))
-
         return self.zhangnet, self.selected_indices
 
     def report_stats(self, channel_weights, sparse_weights, epoch, mse_loss, l1_loss, lambda_value, loss):
@@ -128,10 +128,12 @@ class Algorithm_zhang_mean_fc_nosig6(Algorithm):
     def sparsity_ratio(self, channel_weights):
         l1 = torch.norm(channel_weights, p=1)
         l2 = torch.norm(channel_weights, p=2)
-        return l1/l2
+        return l1
 
     def get_lambda(self, epoch):
         return 0.01
+
+
 
 
 
