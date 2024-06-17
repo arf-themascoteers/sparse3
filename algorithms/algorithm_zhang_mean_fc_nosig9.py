@@ -92,7 +92,7 @@ class Algorithm_zhang_mean_fc_nosig9(Algorithm):
 
                 y = y.type(torch.LongTensor).to(self.device)
                 mse_loss = self.criterion(y_hat, y)
-                mse_loss2 = self.criterion(y_hat, yh2)
+                mse_loss2 = self.criterion(yh2, y)
                 sparsity_ratio = self.sparsity_ratio(channel_weights)
                 lambda_value = self.get_lambda(epoch+1)
                 loss = mse_loss*0.7 + mse_loss2*0.3 + lambda_value*sparsity_ratio
