@@ -1,0 +1,4 @@
+lw
+-relu (optional - remove abs)
+-sigmoid (optional - remove abs)
+-l1
