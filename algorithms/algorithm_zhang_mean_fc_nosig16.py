@@ -19,7 +19,7 @@ class Sparse(nn.Module):
     def k(self, epoch):
         if epoch < 250:
             return 0
-        return 0.8 * (epoch - 250)/250
+        return 0.4
 
 
 class ZhangNet(nn.Module):
