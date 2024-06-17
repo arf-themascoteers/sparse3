@@ -11,7 +11,7 @@ import train_test_evaluator
 class Sparse(nn.Module):
     def __init__(self):
         super().__init__()
-        self.k = 0.3
+        self.k = 0.1
 
     def forward(self, X):
         X = torch.where(X < self.k, 0, X)
