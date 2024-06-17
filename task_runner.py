@@ -40,6 +40,7 @@ class TaskRunner:
             self.reporter.write_details(algorithm, metric)
             if algorithm.weights is not None:
                 weights = torch.abs(algorithm.weights)
+                weights = torch.sort(weights, descending=True)[0]
                 for i,w in enumerate(weights):
                     print(i+1, round(w.item(),4))
 
