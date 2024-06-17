@@ -48,7 +48,7 @@ class ZhangNet(nn.Module):
         return channel_weights, sparse_weights, output
 
 
-class Algorithm_zhang_mean_fc_nosig12(Algorithm):
+class Algorithm_zhang_mean_fc_nosig13(Algorithm):
     def __init__(self, target_size:int, splits:DataSplits, tag, reporter, verbose, fold):
         super().__init__(target_size, splits, tag, reporter, verbose, fold)
         self.criterion = torch.nn.CrossEntropyLoss()
@@ -83,11 +83,16 @@ class Algorithm_zhang_mean_fc_nosig12(Algorithm):
 
                 y = y.type(torch.LongTensor).to(self.device)
                 mse_loss = self.criterion(y_hat, y)
-                sparsity_ratio = self.sparsity_ratio(channel_weights)
-                lambda_value = self.get_lambda(epoch+1)
-                loss = mse_loss + lambda_value*sparsity_ratio
+                lambda1 = self.get_lambda1(epoch)
+                lambda2 = self.get_lambda2(epoch)
+                l1_loss = self.l1(channel_weights)
+                l2_loss = self.l2(channel_weights)
+                loss = mse_loss + lambda1*l1_loss + lambda2/l2_loss
                 if batch_idx == 0 and self.epoch%10 == 0:
-                    self.report_stats(channel_weights, sparse_weights, epoch, mse_loss, sparsity_ratio, lambda_value, loss)
+                    self.report_stats(channel_weights, sparse_weights, epoch, mse_loss,
+                                      l1_loss.item(), lambda1,
+                                      l2_loss.item(), lambda2,
+                                      loss)
                 loss.backward()
                 optimizer.step()
 
@@ -95,7 +100,7 @@ class Algorithm_zhang_mean_fc_nosig12(Algorithm):
         print("".join([str(i).ljust(10) for i in self.selected_indices]))
         return self.zhangnet, self.selected_indices
 
-    def report_stats(self, channel_weights, sparse_weights, epoch, mse_loss, l1_loss, lambda_value, loss):
+    def report_stats(self, channel_weights, sparse_weights, epoch, mse_loss, l1_loss, lambda1, l2_loss, lambda2, loss):
         _, _,y_hat = self.zhangnet(self.X_train)
         yp = torch.argmax(y_hat, dim=1)
         yt = self.y_train.cpu().detach().numpy()
@@ -124,7 +129,7 @@ class Algorithm_zhang_mean_fc_nosig12(Algorithm):
 
         oa, aa, k = train_test_evaluator.evaluate_split(self.splits, self)
         abs_mean_weights = torch.abs(means_sparse)
-        self.reporter.report_epoch(epoch, mse_loss, l1_loss, lambda_value, 0,0,loss,
+        self.reporter.report_epoch(epoch, mse_loss, l1_loss, lambda1, l2_loss,lambda2,loss,
                                    t_oa, t_aa, t_k,
                                    v_oa, v_aa, v_k,
                                    oa, aa, k,
@@ -137,13 +142,17 @@ class Algorithm_zhang_mean_fc_nosig12(Algorithm):
         band_indx = (torch.argsort(torch.abs(sparse_weights), descending=True)).tolist()
         return sparse_weights, band_indx, band_indx[: self.target_size]
 
-    def sparsity_ratio(self, channel_weights):
-        l1 = torch.norm(channel_weights, p=1)
-        l2 = torch.norm(channel_weights, p=2)
-        return l1
+    def l1(self, channel_weights):
+        return torch.norm(channel_weights, p=1)
 
-    def get_lambda(self, epoch):
+    def l2(self, channel_weights):
+        return torch.norm(channel_weights, p=2)
+
+    def get_lambda1(self, epoch):
         return 0.001
+
+    def get_lambda2(self, epoch):
+        return 0.0001
 
 
 
