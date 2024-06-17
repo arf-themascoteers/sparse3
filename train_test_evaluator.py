@@ -48,6 +48,6 @@ def get_metric_evaluator():
     if gowith == "rf":
         return RandomForestClassifier()
     elif gowith == "sv":
-        return SVC(C=1e5, kernel='rbf', gamma=1.)
+        return SVC(C=1e5, kernel='rbf', gamma=1.0)
     else:
         return MLPClassifier(max_iter=2000)

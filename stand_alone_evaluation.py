@@ -15,6 +15,7 @@ def evaluate(dataset, folds, bands):
         oas.append(oa)
         aas.append(aa)
         ks.append(k)
+        print(oa, aa, k)
     return oas, aas, ks
 
 
