@@ -1,14 +1,16 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import torch
+import torch.nn as nn
 
-k=0.3
-d = 0.05
 
-s = d/k
+x = torch.linspace(-1,1,100)
 
-x = np.linspace(0,1,100)
-y = x.copy()
-y[np.abs(y)<k] = y[np.abs(y)<k]*s
+lrl = nn.LeakyReLU(2)
+
+y = torch.where(x<0.8, lrl(x-0.8)+0.8 ,x)
 
 plt.plot(x,y)
+plt.xlim(0, 1)
+plt.ylim(0, 1)
 plt.show()

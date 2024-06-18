@@ -11,9 +11,10 @@ import train_test_evaluator
 class Sparse(nn.Module):
     def __init__(self):
         super().__init__()
+        self.lrl = nn.LeakyReLU(2)
 
     def forward(self, X):
-        return torch.relu(X)
+        return torch.where(X<0.8, self.lrl(X-0.8)+0.8,X)
 
 
 class ZhangNet(nn.Module):
@@ -23,7 +24,7 @@ class ZhangNet(nn.Module):
         self.bands = bands
         self.number_of_classes = number_of_classes
         self.last_layer_input = last_layer_input
-        self.weighter = nn.Parameter(torch.ones(self.bands, dtype=torch.float32)/2)
+        self.weighter = nn.Parameter(torch.ones(self.bands, dtype=torch.float32))
         self.classnet = nn.Sequential(
             nn.Linear(self.bands, 200),
             nn.LeakyReLU(),
@@ -112,8 +113,8 @@ class Algorithm_zhang_mean_fc_nosig18(Algorithm):
         min_s = torch.min(means_sparse).item()
         max_cw = torch.max(mean_weight).item()
         max_s = torch.max(means_sparse).item()
-        avg_cw = torch.mean(mean_weight).item()
-        avg_s = torch.mean(means_sparse).item()
+        avg_cw = torch.mean(torch.abs(mean_weight)).item()
+        avg_s = torch.mean(torch.abs(means_sparse)).item()
 
         l0_cw = torch.norm(mean_weight, p=0).item()
         l0_s = torch.norm(means_sparse, p=0).item()
@@ -141,7 +142,7 @@ class Algorithm_zhang_mean_fc_nosig18(Algorithm):
         return torch.norm(channel_weights, p=2)
 
     def get_lambda1(self, epoch):
-        return 0.001
+        return 0.01
 
     def get_lambda2(self, epoch):
         return 0
