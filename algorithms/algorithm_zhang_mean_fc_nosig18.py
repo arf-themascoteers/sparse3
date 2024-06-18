@@ -11,10 +11,9 @@ import train_test_evaluator
 class Sparse(nn.Module):
     def __init__(self):
         super().__init__()
-        self.lrl = nn.LeakyReLU(2)
 
     def forward(self, X):
-        return torch.where(X<0.8, self.lrl(X-0.8)+0.8,X)
+        return torch.where(X<0.8, 0,X)
 
 
 class ZhangNet(nn.Module):
@@ -57,7 +56,7 @@ class Algorithm_zhang_mean_fc_nosig18(Algorithm):
         self.y_val = torch.tensor(self.splits.validation_y, dtype=torch.int32).to(self.device)
 
     def get_selected_indices(self):
-        optimizer = torch.optim.Adam(self.zhangnet.parameters(), lr=0.001, betas=(0.9,0.999))
+        optimizer = torch.optim.Adam(self.zhangnet.parameters(), lr=0.01, betas=(0.9,0.999))
         dataset = TensorDataset(self.X_train, self.y_train)
         dataloader = DataLoader(dataset, batch_size=128000, shuffle=True)
         channel_weights = None
@@ -142,7 +141,7 @@ class Algorithm_zhang_mean_fc_nosig18(Algorithm):
         return torch.norm(channel_weights, p=2)
 
     def get_lambda1(self, epoch):
-        return 0.01
+        return 0.001
 
     def get_lambda2(self, epoch):
         return 0

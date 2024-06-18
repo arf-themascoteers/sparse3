@@ -1,4 +1,4 @@
 import torch
 
-x = torch.randn(10)
-print(x)
+x = range(30,4,-1)
+print(list(x))
