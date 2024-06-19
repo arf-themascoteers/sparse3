@@ -165,8 +165,7 @@ class ModelWrapper(torch.nn.Module):
         self.model = model
 
     def forward(self, x):
-        #channel_weights, sparse_weights, output = self.model(x)
-        output = self.model(x)
+        channel_weights, sparse_weights, output = self.model(x)
         return output
 
 class SimpleModel(torch.nn.Module):
