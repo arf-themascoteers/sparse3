@@ -6,6 +6,7 @@ import pandas as pd
 from metrics import Metrics
 from algorithm import Algorithm
 import train_test_evaluator
+import numpy as np
 
 
 class TaskRunner:
@@ -39,7 +40,10 @@ class TaskRunner:
             metric = self.get_results_for_a_case(algorithm, fold)
             self.reporter.write_details(algorithm, metric)
             if algorithm.weights is not None:
-                weights = torch.abs(algorithm.weights)
+                weights = algorithm.weights
+                if isinstance(weights, np.ndarray):
+                    weights = torch.tensor(weights)
+                weights = torch.abs(weights)
                 weights = torch.sort(weights, descending=True)[0]
                 for i,w in enumerate(weights):
                     print(i+1, round(w.item(),4))

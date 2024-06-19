@@ -1,12 +1,11 @@
 from task_runner import TaskRunner
-import oak_plotter
 
 if __name__ == '__main__':
-    tag = "nosig6"
+    tag = "shapped"
     tasks = {
-        "algorithms" : ["zhang_mean_fc_nosig6"],
+        "algorithms" : ["shapped"],
         "datasets" : ["indian_pines"],
-        "target_sizes" : list(range(5,31))
+        "target_sizes" : list(range(30,4,-1))
     }
     ev = TaskRunner(tasks,1,tag,skip_all_bands=False)
     summary, details = ev.evaluate()
