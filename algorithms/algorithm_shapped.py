@@ -49,7 +49,7 @@ class Algorithm_shapped(Algorithm):
         self.class_size = len(np.unique(self.splits.train_y))
         self.last_layer_input = 100
         self.zhangnet = ZhangNet(self.splits.train_x.shape[1], self.class_size, self.last_layer_input).to(self.device)
-        self.total_epoch = 1#2000
+        self.total_epoch = 2000
         self.epoch = -1
         self.X_train = torch.tensor(self.splits.train_x, dtype=torch.float32).to(self.device)
         self.y_train = torch.tensor(self.splits.train_y, dtype=torch.int32).to(self.device)
