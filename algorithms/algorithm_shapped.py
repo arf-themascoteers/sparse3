@@ -94,9 +94,9 @@ class Algorithm_shapped(Algorithm):
         print("".join([str(i).ljust(10) for i in self.selected_indices]))
 
         model = ModelWrapper(self.zhangnet.to(self.device))
-        explainer = shap.DeepExplainer(model, self.X_train)
-        shap_values = explainer.shap_values(self.X_train)
-        shap_values = np.mean(shap_values.reshape(self.X_train.shape[0],self.X_train.shape[1]), axis=0)
+        explainer = shap.DeepExplainer(model, self.X_val)
+        shap_values = explainer.shap_values(self.X_val)
+        shap_values = np.mean(shap_values.reshape(self.X_val.shape[0],self.X_val.shape[1]), axis=0)
         shap_band_indx = np.argsort(-shap_values).tolist()
         print(shap_band_indx)
         print(self.all_indices)
