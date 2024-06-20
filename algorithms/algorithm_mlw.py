@@ -46,6 +46,7 @@ class ZhangNet(nn.Module):
         modules = list(self.classnets)
         inputs = [recalibrated_X[i] for i in range(recalibrated_X.shape[0])]
 
+        #output = [self.classnets[i](inputs[i]) for i in range(self.heads+1)]
         output = torch.nn.parallel.parallel_apply(modules, inputs)
         output = torch.stack(output, dim=0)
 
@@ -67,7 +68,7 @@ class Algorithm_mlw(Algorithm):
         self.y_val = torch.tensor(self.splits.validation_y, dtype=torch.int32).to(self.device)
 
     def get_selected_indices(self):
-        optimizer = torch.optim.Adam(self.zhangnet.parameters(), lr=0.01, betas=(0.9,0.999))
+        optimizer = torch.optim.Adam(self.zhangnet.parameters(), lr=0.001, betas=(0.9,0.999))
         dataset = TensorDataset(self.X_train, self.y_train)
         dataloader = DataLoader(dataset, batch_size=128000, shuffle=True)
         channel_weights = None
@@ -78,6 +79,7 @@ class Algorithm_mlw(Algorithm):
         for epoch in range(self.total_epoch):
             self.epoch = epoch
             for batch_idx, (X, y) in enumerate(dataloader):
+                #print(epoch, self.zhangnet.channel_weights[:,0,0].tolist())
                 optimizer.zero_grad()
                 channel_weights, sparse_weights, y_hat = self.zhangnet(X)
                 mean_weight, all_bands, selected_bands = self.get_indices(sparse_weights)
@@ -91,7 +93,7 @@ class Algorithm_mlw(Algorithm):
                     weight = 1
                     if i == self.zhangnet.heads - 1:
                         weight = self.zhangnet.heads
-                    mse_loss = weight * self.criterion(y_hat[i], y)
+                    mse_loss = mse_loss + (weight * self.criterion(y_hat[i], y))
 
                 mse_loss = mse_loss / (self.zhangnet.heads*2)
                 lambda1 = self.get_lambda1(epoch)
