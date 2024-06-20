@@ -182,16 +182,7 @@ class Algorithm_mlwrig_nol2(Algorithm):
         return 0.001
 
     def get_lambda2(self, epoch):
-        if self.target_size <= 5:
-            return 0.0001
-        reduce = (0.000001) * (self.target_size - 5)
-        r = 0.0001 - reduce
-        if r <= 0:
-            return 0
-        return r
-
-    def is_cacheable(self):
-        return False
+        return 0
 
 
 class ModelWrapper(torch.nn.Module):
