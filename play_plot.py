@@ -4,10 +4,23 @@ import torch
 import torch.nn as nn
 
 
-x = torch.linspace(-1,1,100)
-y = x.clone()
-y[(y>0.6)&(y<0.8)] = y[(y>0.6)&(y<0.8)] / 1.5
-y[y<0.6] = 0
+def get_lambda2(target_size):
+    if target_size <=5:
+        return 0.0001
+    reduce = (0.000001)*(target_size-5)
+    r = 0.0001 - reduce
+    if r <=0:
+        return 0
+    return r
+
+x = np.linspace(0,30,31)
+print(x)
+
+y = [get_lambda2(i) for i in x]
+print(y)
 
 plt.plot(x,y)
 plt.show()
+
+for i in range(30):
+    print(f"{x[i]}\t{y[i]}")
