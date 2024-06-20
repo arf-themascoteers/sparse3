@@ -54,7 +54,7 @@ class ZhangNet(nn.Module):
         return mean_channel_weights.squeeze(0).squeeze(0), sparse_channel_weights[-1].squeeze(0), output
 
 
-class Algorithm_mlw_r(Algorithm):
+class Algorithm_mlwrig(Algorithm):
     def __init__(self, target_size:int, splits:DataSplits, tag, reporter, verbose, fold):
         super().__init__(target_size, splits, tag, reporter, verbose, fold)
         self.criterion = torch.nn.CrossEntropyLoss()
