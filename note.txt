@@ -1,2 +1,2 @@
-_lw_relu
-nosig18
+1: zhang
+2: nosig14_nol2: fc, no sig, full batch, uniform l1, mean first
