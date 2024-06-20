@@ -8,7 +8,7 @@
 
 compare mlw_r and ig: mlw_r slightly better
 
-compare mlwrig_nol2 = ig + mlw_r
+compare mlwrig_nol2 = ig + mlw_r (EXPECTING better)
 
 
 

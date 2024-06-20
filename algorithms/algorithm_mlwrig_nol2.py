@@ -51,7 +51,7 @@ class ZhangNet(nn.Module):
         output = torch.nn.parallel.parallel_apply(modules, inputs)
         output = torch.stack(output, dim=0)
 
-        return mean_channel_weights.squeeze(0).squeeze(0), sparse_channel_weights[-1].squeeze(0), output
+        return mean_channel_weights.squeeze(0).squeeze(0), sparse_channel_weights[-1].squeeze(0), output, output[-1]
 
 
 class Algorithm_mlwrig_nol2(Algorithm):
@@ -82,7 +82,7 @@ class Algorithm_mlwrig_nol2(Algorithm):
             for batch_idx, (X, y) in enumerate(dataloader):
                 #print(epoch, self.zhangnet.channel_weights[:,0,0].tolist())
                 optimizer.zero_grad()
-                channel_weights, sparse_weights, y_hat = self.zhangnet(X)
+                channel_weights, sparse_weights, y_hat,_ = self.zhangnet(X)
                 mean_weight, all_bands, selected_bands = self.get_indices(sparse_weights)
                 self.set_all_indices(all_bands)
                 self.set_selected_indices(selected_bands)
@@ -130,14 +130,14 @@ class Algorithm_mlwrig_nol2(Algorithm):
         return self.zhangnet, self.selected_indices
 
     def report_stats(self, channel_weights, sparse_weights, epoch, mse_loss, l1_loss, lambda1, l2_loss, lambda2, loss):
-        _, _,y_hat = self.zhangnet(self.X_train)
+        _, _,y_hat,_ = self.zhangnet(self.X_train)
         y_hat = y_hat[-1]
         yp = torch.argmax(y_hat, dim=1)
         yt = self.y_train.cpu().detach().numpy()
         yh = yp.cpu().detach().numpy()
         t_oa, t_aa, t_k = train_test_evaluator.calculate_metrics(yt, yh)
 
-        _, _,y_hat = self.zhangnet(self.X_val)
+        _, _,y_hat,_ = self.zhangnet(self.X_val)
         y_hat = y_hat[-1]
         yp = torch.argmax(y_hat, dim=1)
         yt = self.y_val.cpu().detach().numpy()
@@ -182,7 +182,16 @@ class Algorithm_mlwrig_nol2(Algorithm):
         return 0.001
 
     def get_lambda2(self, epoch):
-        return 0
+        if self.target_size <= 5:
+            return 0.0001
+        reduce = (0.000001) * (self.target_size - 5)
+        r = 0.0001 - reduce
+        if r <= 0:
+            return 0
+        return r
+
+    def is_cacheable(self):
+        return False
 
 
 class ModelWrapper(torch.nn.Module):
@@ -191,8 +200,8 @@ class ModelWrapper(torch.nn.Module):
         self.model = model
 
     def forward(self, x):
-        channel_weights, sparse_weights, output = self.model(x)
-        return output
+        channel_weights, sparse_weights, output,meanout = self.model(x)
+        return meanout
 
 
 
