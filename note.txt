@@ -1,2 +1,21 @@
 1: zhang
-2: nosig14_nol2: fc, no sig, full batch, uniform l1, mean first
+2: nosig14_nol2: fc, no sig, full batch, uniform l1, mean first [zhang better woard end]
+3: zhang_mean_fc_nosig18: attn to lw, lr 01, fixed init [nosig14_nol2 better toward start]
+4.1: ig: ig -  clear winner
+4.2: mlw_r_single: zhang_mean_fc_nosig18 clear winner. but mlw_r_single has promise for multiple.
+
+(4.2)1 - mlw_r (multi): mlw_r  clear winner than mlw_r_single and 18
+
+compare mlw_r and ig: mlw_r slightly better
+
+compare mlwrig_nol2 = ig + mlw_r
+
+
+
+sparse3: zhang - nosig14_nol2
+
+==coming
+
+ig
+l2
+adaptive l2
