@@ -182,7 +182,7 @@ class Algorithm_mlwrig(Algorithm):
         return 0.001
 
     def get_lambda2(self, epoch):
-        return 0.0001
+        return 0.0005
 
 
 class ModelWrapper(torch.nn.Module):
